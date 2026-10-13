@@ -1,0 +1,59 @@
+
+services:
+  frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - "8080:80"
+    networks:
+      - frontend-net
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    restart: always
+    networks:
+      - frontend-net
+      - backend-net
+    depends_on:
+      - database
+    environment:
+      DB_HOST: database
+      DB_PORT: ${DB_PORT:-3306}
+      DB_NAME: ${DB_NAME:-traffic_db}
+      DB_USER: ${DB_USER:-mohamed}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+
+  database:
+    image: mysql:8.4
+    restart: always
+    networks:
+      - backend-net
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_DATABASE: ${DB_NAME:-traffic_db}
+      MYSQL_USER: ${DB_USER:-mohamed}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/traffic_schema.sql:/docker-entrypoint-initdb.d/traffic_schema.sql:ro
+
+volumes:
+  mysql_data:
+
+networks:
+  frontend-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.10.0/24
+          gateway: 172.30.10.1
+
+  backend-net:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.30.20.0/24
+          gateway: 172.30.20.1

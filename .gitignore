@@ -1,0 +1,23 @@
+# Environment variables — never commit this file
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup and log files
+*.log
+*.orig
+*.bak
+database_backup_*.db
+recovered_*
+
+# SQLite (old database file)
+database.db
